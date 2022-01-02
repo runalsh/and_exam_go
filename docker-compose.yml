@@ -1,0 +1,12 @@
+version: '3.9'
+
+services:
+  go_app:
+    build: .
+    restart: always
+    image: runalsh/goapp:latest
+ #   image: $CI_REGISTRY_IMAGE:app_${ENV}$CI_COMMIT_SHORT_SHA
+#    expose:
+#      - 8001
+    ports:
+      - "8080:8080"
