@@ -135,50 +135,51 @@ jobs:
 
       # - name: Terraform Apply
         # run: terraform apply -auto-approve
-  pushtoecr:
-    # needs: deployecr
-    name: start deploying to awc ecr
-    runs-on: ubuntu-latest
+
+  # pushtoecr:
+    # # needs: deployecr
+    # name: start deploying to awc ecr
+    # runs-on: ubuntu-latest
   
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-    - name: Build, tag, and push image to Amazon ECR
-      id: build-image
-      env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: gorepo
-          IMAGE_TAG: go-image-${{ github.sha }}
-      run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-      # https://github.com/marketplace/actions/amazon-ecs-deploy-task-definition-action-for-github-actions
+    # steps:
+    # - name: Checkout
+      # uses: actions/checkout@v2
+    # - name: Configure AWS credentials
+      # uses: aws-actions/configure-aws-credentials@v1
+      # with:
+        # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        # aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+        # aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+    # - name: Login to Amazon ECR
+      # id: login-ecr
+      # uses: aws-actions/amazon-ecr-login@v1
+    # - name: Build, tag, and push image to Amazon ECR
+      # id: build-image
+      # env:
+          # ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          # ECR_REPOSITORY: gorepo
+          # IMAGE_TAG: go-image-${{ github.sha }}
+      # run: |
+          # docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          # docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          # echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+      # # https://github.com/marketplace/actions/amazon-ecs-deploy-task-definition-action-for-github-actions
 
-    - name: Fill in the new image ID in the Amazon ECS task definition
-      id: MyTaskDefinition
-      uses: aws-actions/amazon-ecs-render-task-definition@v1
-      with:
-        task-definition: task-definition.json
-        container-name: MyContainerName
-        image: ${{ steps.build-image.outputs.image }}
+    # - name: Fill in the new image ID in the Amazon ECS task definition
+      # id: MyTaskDefinition
+      # uses: aws-actions/amazon-ecs-render-task-definition@v1
+      # with:
+        # task-definition: task-definition.json
+        # container-name: MyContainerName
+        # image: ${{ steps.build-image.outputs.image }}
 
-    - name: Deploy Amazon ECS task definition
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      with:
-        task-definition: ${{ steps.MyTaskDefinition.outputs.task-definition }}
-        service: MyService
-        cluster: ecs-devops-sandbox-cluster
-        wait-for-service-stability: true
+    # - name: Deploy Amazon ECS task definition
+      # uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      # with:
+        # task-definition: ${{ steps.MyTaskDefinition.outputs.task-definition }}
+        # service: MyService
+        # cluster: ecs-devops-sandbox-cluster
+        # wait-for-service-stability: true
         
    ecrecrecr:
     name: deploying aws ecr with terraform 
