@@ -1,35 +1,26 @@
 on:
   push:
-    branches:
-      - main
-jobs: 
+    branches: [ main ]
+    paths-ignore:
+      - '*.md'
+  pull_request:
+    branches: [ main ]
+
+jobs:
   snyk:
+    name: Snyk Infrastructure as Code
     runs-on: ubuntu-latest
-    env:
-      ACTION: Snyk job
     steps:
       - name: Checkout
-        uses: actions/checkout@master
-
-      - name: Run Snyk to check for vulnerabilities
-        uses: clarkio/snyk-cli-action@master
+      - uses: actions/checkout@v2
+      - name: Run Snyk to check configuration files for security issues
+        uses: snyk/actions/golang@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      
-      - name: Send telegram notification if failure
-        uses: appleboy/telegram-action@master
-        if: ${{ failure() }} 
         with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: |
-            *Repository*: ${{ github.repository }}
-
-            *Action*: ${{ env.ACTION }}
-            *Status*: ${{ job.status }}
-            *Author*: ${{ github.actor }}
-
-            *Commit message*: ${{ github.event.commits[0].message }}
-            *Link*: https://github.com/${{ github.repository }}/commit/${{github.sha}}
-          format: "markdown"
-          disable_web_page_preview: true
+          args: --sarif-file-output=snyk.sarif        
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v1
+        if: always()
+        with:
+          sarif_file: snyk.sarif
