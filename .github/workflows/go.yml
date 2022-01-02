@@ -1,4 +1,3 @@
-
 on:
   push:
     branches: [ main ]
@@ -137,12 +136,6 @@ jobs:
       # - name: Terraform Apply
         # run: terraform apply -auto-approve
 
-
-
-
-
-
-  
   pushtoecr:
     # needs: deployecr
     name: start deploying to awc ecr
@@ -172,22 +165,18 @@ jobs:
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
       # https://github.com/marketplace/actions/amazon-ecs-deploy-task-definition-action-for-github-actions
 
-    - name: Download task definition
-      run: |
-        aws ecs describe-task-definition --task-definition golang-container-family --query taskDefinition > task-definition.json
-     
     - name: Fill in the new image ID in the Amazon ECS task definition
-      id: taskdefinition
+      id: MyTaskDefinition
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: task-definition.json
-        container-name: golang-container
+        container-name: MyContainerName
         image: ${{ steps.build-image.outputs.image }}
 
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
-        task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: golang-container-service
-        cluster: golang-container-cluster
-        wait-for-service-stability: true        
+        task-definition: ${{ steps.MyTaskDefinition.outputs.task-definition }}
+        service: MyService
+        cluster: ecs-devops-sandbox-cluster
+        wait-for-service-stability: true
