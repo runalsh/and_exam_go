@@ -10,7 +10,7 @@ resource "aws_lb" "web" {
 
 resource "aws_lb_target_group" "lb_target_group" {
   name        = "${var.prefix}tg-golang"
-  port        = "80"
+  port        = "8080"
   protocol    = "HTTP"
   target_type = "instance"
   vpc_id      = aws_vpc.vpc.id
@@ -26,7 +26,7 @@ resource "aws_lb_target_group" "lb_target_group" {
 
 resource "aws_lb_listener" "web-listener" {
   load_balancer_arn = aws_lb.web.arn
-  port              = "80"
+  port              = "8080"
   protocol          = "HTTP"
   default_action {
     type             = "forward"
