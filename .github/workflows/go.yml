@@ -3,11 +3,11 @@ on:
     branches: [ main ]
     paths-ignore:
       - '*.md'
-  pull_request:
+  pull_request: 
 
 jobs:
   snyk:
-    11name: Snyk Infrastructure as Code
+    name: Snyk Infrastructure as Code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -18,7 +18,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-        
+          args: --sarif-file-output=snyk.sarif        
       - name: Upload result to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v1
         if: always()
