@@ -180,3 +180,50 @@ jobs:
         service: MyService
         cluster: ecs-devops-sandbox-cluster
         wait-for-service-stability: true
+        
+   ecrecrecr:
+    name: deploying aws ecr with terraform 
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: 1
+    # needs: tests
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+ 
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform format
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform init
+        run: terraform init
+      
+      - name: Terraform validate
+        run: terraform validate
+
+      - name: Terraform plan
+        id: plan
+        run: terraform plan
+        continue-on-error: true
+
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve  
+      
+      
+      
+      
+      
+      
