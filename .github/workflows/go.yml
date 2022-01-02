@@ -7,38 +7,38 @@ on:
     branches: [ main ]
 
 jobs:
-  snyk:
-    name: snyk for vulns
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+  # snyk:
+    # name: snyk for vulns
+    # runs-on: ubuntu-latest
+    # steps:
+      # - name: Checkout
+        # uses: actions/checkout@v2
       
-      - name: Run Snyk to check configuration files for security issues
-        uses: snyk/actions/golang@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --sarif-file-output=snyk.sarif        
-      - name: Upload result to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v1
-        if: always()
-        with:
-          sarif_file: snyk.sarif
+      # - name: Run Snyk to check configuration files for security issues
+        # uses: snyk/actions/golang@master
+        # env:
+          # SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        # with:
+          # args: --sarif-file-output=snyk.sarif        
+      # - name: Upload result to GitHub Code Scanning
+        # uses: github/codeql-action/upload-sarif@v1
+        # if: always()
+        # with:
+          # sarif_file: snyk.sarif
           
-      - name: send massage with snyk result
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: |
-            ${{ github.actor }} created commit:
-            Commit message: ${{ github.event.commits[0].message }}
-            Snyk result: ${{ steps.snyk_test.outputs.snyk_test }}\n${{ steps.line.outputs.line }}\n
-            Snyk Code Test: ${{ steps.snyk_code.outputs.snyk_code }}\n${{ steps.line.outputs.line }}
-            Repository: https://github.com/${{ github.repository }}/commit/${{github.sha}}
-          #format: "markdown"
-          disable_web_page_preview: true
+      # - name: send massage with snyk result
+        # uses: appleboy/telegram-action@master
+        # with:
+          # to: ${{ secrets.TELEGRAM_TO }}
+          # token: ${{ secrets.TELEGRAM_TOKEN }}
+          # message: |
+            # ${{ github.actor }} created commit:
+            # Commit message: ${{ github.event.commits[0].message }}
+            # Snyk result: ${{ steps.snyk_test.outputs.snyk_test }}\n${{ steps.line.outputs.line }}\n
+            # Snyk Code Test: ${{ steps.snyk_code.outputs.snyk_code }}\n${{ steps.line.outputs.line }}
+            # Repository: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+          # #format: "markdown"
+          # disable_web_page_preview: true
           
       # - name: Send Gmail notification
         # if: always()
@@ -53,32 +53,31 @@ jobs:
             # from: github action ${{github.sha}} on ${{github.repository}}
             # body: Build job of ${{github.repository}} completed successfully!
             # attachments: snyk.sarif
-  test:
-    needs: snyk
-    name: testing and building
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: install go 
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.15.15
-    - name: building
-      run: go build -v ./...
-    - name: testing
-      run: go test -v ./...    
-    - name: send massage with test
-      uses: appleboy/telegram-action@master
-      with:
-        to: ${{ secrets.TELEGRAM_TO }}
-        token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: |
-          ${{ github.actor }} created commit:
-          Commit message: ${{ github.event.commits[0].message }}
-          Test result: ${{ steps.snyk_test.outputs.snyk_test }}\n${{ steps.line.outputs.line }}\n
-          Repository: https://github.com/${{ github.repository }}/commit/${{github.sha}}
-        #format: "markdown"
-        disable_web_page_preview: true
+  # test:
+    # needs: snyk
+    # name: testing and building
+    # runs-on: ubuntu-latest
+    # steps:
+    # - uses: actions/checkout@v2
+    # - name: install go 
+      # uses: actions/setup-go@v2
+      # with:
+        # go-version: 1.15.15
+    # - name: building
+      # run: go build -v ./...
+    # - name: testing
+      # run: go test -v ./...    
+    # - name: send massage with test
+      # uses: appleboy/telegram-action@master
+      # with:
+        # to: ${{ secrets.TELEGRAM_TO }}
+        # token: ${{ secrets.TELEGRAM_TOKEN }}
+        # message: |
+          # ${{ github.actor }} created commit:
+          # Commit message: ${{ github.event.commits[0].message }}
+          # Test result: ${{ steps.snyk_test.outputs.snyk_test }}\n${{ steps.line.outputs.line }}\n
+          # Repository: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+        # disable_web_page_preview: true
           
       # - name: Send Gmail notification
         # if: always()
@@ -97,7 +96,7 @@ jobs:
 ################### HERE CAN BE GOSEC CHECK BUT IM LAZYYYYYYYYY ####################        
         
   deploytoecr:
-    needs: test
+    # needs: test
     name: start deploying to awc ecr
     runs-on: ubuntu-latest
   
@@ -118,7 +117,7 @@ jobs:
       env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: go-repo
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: image-go-${{ github.sha }}
       run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
