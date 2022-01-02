@@ -135,7 +135,6 @@ jobs:
 
       # - name: Terraform Apply
         # run: terraform apply -auto-approve
-
   pushtoecr:
     # needs: deployecr
     name: start deploying to awc ecr
