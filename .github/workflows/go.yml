@@ -1,0 +1,67 @@
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '*.md'
+    branches: [ main ]
+
+jobs:
+  snyk:
+    11name: Snyk Infrastructure as Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+      - uses: actions/checkout@v2
+      
+      - name: Run Snyk to check configuration files for security issues
+        uses: snyk/actions/golang@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+        
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v1
+        if: always()
+        with:
+          sarif_file: snyk.sarif
+          
+      - name: send massage with snyk result
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            ${{ github.actor }} created commit:
+            Commit message: ${{ github.event.commits[0].message }}
+            Snyk result: ${{ steps.snyk_test.outputs.snyk_test }}\n${{ steps.line.outputs.line }}\n
+            Snyk Code Test: ${{ steps.snyk_code.outputs.snyk_code }}\n${{ steps.line.outputs.line }}
+            Repository: ${{ github.repository }}
+          format: "markdown"
+          disable_web_page_preview: true
+          
+      # - name: Send Gmail notification
+        # if: always()
+        # uses: dawidd6/action-send-mail@v3
+        # with:
+            # server_address: smtp.yandex.ru
+            # server_port: 465
+            # username: ${{secrets.YANDEX_MAIL_USERNAME}}
+            # password: ${{secrets.YANDEX_MAIL_PASSWORD}}
+            # subject: Github Actions job result
+            # to: shaidullin2@gmail.com
+            # from: github action
+            # secure: true
+            # body: Build job of ${{github.repository}} completed successfully!
+            # attachments: snyk.sarif
+		  
+		  
+		  
+		  
+		  
+		  
+		  
+		  
+		  
+		  
+		  
+		  
