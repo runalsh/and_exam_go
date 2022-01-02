@@ -3,7 +3,7 @@ on:
     branches: [ main ]
     paths-ignore:
       - '*.md'
-    branches: [ main ]
+  pull_request:
 
 jobs:
   snyk:
@@ -53,15 +53,3 @@ jobs:
             # secure: true
             # body: Build job of ${{github.repository}} completed successfully!
             # attachments: snyk.sarif
-		  
-		  
-		  
-		  
-		  
-		  
-		  
-		  
-		  
-		  
-		  
-		  
