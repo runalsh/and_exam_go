@@ -1,0 +1,14 @@
+[
+    {
+      "name": "andersen-exam-golang-container",
+      "image": "406496705539.dkr.ecr.eu-central-1.amazonaws.com/andersen-golang-exam:latest",
+      "cpu": 256,
+      "memory": 512,
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 80
+        }
+      ]
+    }
+]
