@@ -96,100 +96,98 @@ jobs:
             
 ################### HERE CAN BE GOSEC CHECK ####################        
   
-  deployecr:
-    name: deploying aws ecr with terraform 
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: awsecr
- #   needs: tests
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
- 
-    steps:
-      - name: Checkout 
-        uses: actions/checkout@v2
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
-
-      - name: Terraform format
-        run: terraform fmt -check
-        continue-on-error: true
-
-      - name: Terraform init
-        run: terraform init
-      
-      - name: Terraform validate
-        run: terraform validate
-
-      - name: Terraform plan
-        id: plan
-        run: terraform plan
-        continue-on-error: true
-
-      - name: Terraform Plan Status
-        if: steps.plan.outcome == 'failure'
-        run: exit 1
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
-
-
-
-
-
-
-  
-  # pushtoecr:
-    # # needs: deployecr
-    # name: start deploying to awc ecr
+  # deployecr:
+    # name: deploying aws ecr with terraform 
     # runs-on: ubuntu-latest
-  
+    # defaults:
+      # run:
+        # working-directory: awsecr
+    # # needs: tests
+    # env:
+      # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      # AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+ 
     # steps:
-    # - name: Checkout
-      # uses: actions/checkout@v2
-    # - name: Configure AWS credentials
-      # uses: aws-actions/configure-aws-credentials@v1
-      # with:
-        # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-        # aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-        # aws-region: ${{ AWS_DEFAULT_REGION }}
-    # - name: Login to Amazon ECR
-      # id: login-ecr
-      # uses: aws-actions/amazon-ecr-login@v1
-    # - name: Build, tag, and push image to Amazon ECR
-      # id: build-image
-      # env:
-          # ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          # ECR_REPOSITORY: go-repo
-          # IMAGE_TAG: image-go-${{ github.sha }}
-      # run: |
-          # docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          # docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          # echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-      # # https://github.com/marketplace/actions/amazon-ecs-deploy-task-definition-action-for-github-actions
-      # # - name: Send telegram notification if failure
-        # # uses: appleboy/telegram-action@master
-        # # if: ${{ failure() }}  
-    # - name: Download task definition
-      # run: |
-        # aws ecs describe-task-definition --task-definition golang-container-family --query taskDefinition > task-definition.json
-     
-    # - name: Fill in the new image ID in the Amazon ECS task definition
-      # id: taskdefinition
-      # uses: aws-actions/amazon-ecs-render-task-definition@v1
-      # with:
-        # task-definition: task-definition.json
-        # container-name: golang-container
-        # image: ${{ steps.build-image.outputs.image }}
+      # - name: Checkout 
+        # uses: actions/checkout@v2
 
-    # - name: Deploy Amazon ECS task definition
-      # uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      # with:
-        # task-definition: ${{ steps.task-def.outputs.task-definition }}
-        # service: golang-container-service
-        # cluster: golang-container-cluster
-        # wait-for-service-stability: true        
+      # - name: Setup Terraform
+        # uses: hashicorp/setup-terraform@v1
+
+      # - name: Terraform format
+        # run: terraform fmt -check
+        # continue-on-error: true
+
+      # - name: Terraform init
+        # run: terraform init
+      
+      # - name: Terraform validate
+        # run: terraform validate
+
+      # - name: Terraform plan
+        # id: plan
+        # run: terraform plan
+        # continue-on-error: true
+
+      # - name: Terraform Plan Status
+        # if: steps.plan.outcome == 'failure'
+        # run: exit 1
+
+      # - name: Terraform Apply
+        # run: terraform apply -auto-approve
+
+
+
+
+
+
+  
+  pushtoecr:
+    # needs: deployecr
+    name: start deploying to awc ecr
+    runs-on: ubuntu-latest
+  
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+        aws-region: ${{ AWS_DEFAULT_REGION }}
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image
+      env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: gorepo
+          IMAGE_TAG: go-image-${{ github.sha }}
+      run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+      # https://github.com/marketplace/actions/amazon-ecs-deploy-task-definition-action-for-github-actions
+
+    - name: Download task definition
+      run: |
+        aws ecs describe-task-definition --task-definition golang-container-family --query taskDefinition > task-definition.json
+     
+    - name: Fill in the new image ID in the Amazon ECS task definition
+      id: taskdefinition
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: task-definition.json
+        container-name: golang-container
+        image: ${{ steps.build-image.outputs.image }}
+
+    - name: Deploy Amazon ECS task definition
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ${{ steps.task-def.outputs.task-definition }}
+        service: golang-container-service
+        cluster: golang-container-cluster
+        wait-for-service-stability: true        
