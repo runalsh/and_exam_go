@@ -67,8 +67,8 @@ jobs:
     - name: testing
       run: go test -v ./...    
     - name: send massage with test
-       uses: appleboy/telegram-action@master
-       with:
+      uses: appleboy/telegram-action@master
+      with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
         message: |
@@ -103,21 +103,21 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
           aws-access-key-id: ${{ secrets.MY_AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.MY_AWS_SECRET_KEY }}
           aws-region: ${{ env.AWS_DEFAULT_REGION }}
     - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
     - name: Build, tag, and push image to Amazon ECR
-        id: build-image
-        env:
+      id: build-image
+      env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: go-${{ env.ECR_REPO }}
           IMAGE_TAG: ${{ github.sha }}
-        run: |
+      run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
