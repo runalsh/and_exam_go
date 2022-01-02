@@ -15,7 +15,7 @@ func main() {
 
 	err := r.Run(":8080")
 	if err != nil {
-		fmt.Print("fk u linter hehe")
+		fmt.Print("fk u linter hehehe")
 	}
 
 }
