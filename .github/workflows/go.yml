@@ -1,16 +1,7 @@
 on:
   push:
     branches:
-      - master
-    paths-ignore:
-      # - '.github/workflows/*'
-      - '.gitignore'
-      - '*.md'
-      - '*.png'
-
-env:
-  IMAGE_TAG: ${{github.sha}}
-
+      - main
 jobs: 
   snyk:
     runs-on: ubuntu-latest
