@@ -9,7 +9,7 @@ terraform {
 }
 
 resource "aws_ecr_repository" "app_repo_go" {
-  name = var.container.go
+  name = go-repo
 
   image_scanning_configuration {
     scan_on_push = true
