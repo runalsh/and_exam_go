@@ -160,13 +160,13 @@ jobs:
           ECR_REPOSITORY: gorepo
           IMAGE_TAG: go-image-${{ github.sha }}
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+      #  docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
       # https://github.com/marketplace/actions/amazon-ecs-deploy-task-definition-action-for-github-actions
 
     - name: Fill in the new image ID in the Amazon ECS task definition
-      id: MyTaskDefinition
+      id: task-def
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: task-definition.json
@@ -177,8 +177,8 @@ jobs:
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: ${{ steps.MyTaskDefinition.outputs.task-definition }}
-        service: MyService2
-        cluster: cluster
+        service: go-service
+        cluster: go-cluster
         wait-for-service-stability: true{% endraw %}
         
    # ecrecrecr:
