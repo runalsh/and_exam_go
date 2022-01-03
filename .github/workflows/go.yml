@@ -170,7 +170,7 @@ jobs:
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: task-definition.json
-        container-name: MyContainerName
+        container-name: go-container-ecr
         image: ${{ steps.build-image.outputs.image }}
 
     - name: Deploy Amazon ECS task definition
@@ -178,7 +178,7 @@ jobs:
       with:
         task-definition: ${{ steps.MyTaskDefinition.outputs.task-definition }}
         service: MyService2
-        cluster: ecs-devops-sandbox-cluster2 
+        cluster: cluster
         wait-for-service-stability: true{% endraw %}
         
    # ecrecrecr:
