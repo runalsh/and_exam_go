@@ -18,5 +18,5 @@ data "aws_ami" "amazon_ecs_linux" {
 }
 
 data "aws_ecr_repository" "app_repo" {
-  name = golang
+  name = "golang"
 }
