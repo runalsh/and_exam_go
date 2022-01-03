@@ -57,6 +57,7 @@
     "EC2"
   ],
   "taskDefinitionArn": "arn:aws:ecs:eu-central-1:082046016299:task-definition/defdefdef:1",
+  "family": "MyTaskDefinition",
   "requiresAttributes": [
     {
       "targetId": null,
