@@ -136,23 +136,23 @@ jobs:
       # - name: Terraform Apply
         # run: terraform apply -auto-approve
 
-  # pushtoecr:
-    # # needs: deployecr
-    # name: start deploying to awc ecr
-    # runs-on: ubuntu-latest
+  pushtoecr:
+    # needs: deployecr
+    name: start deploying to awc ecr
+    runs-on: ubuntu-latest
   
-    # steps:
-    # - name: Checkout
-      # uses: actions/checkout@v2
-    # - name: Configure AWS credentials
-      # uses: aws-actions/configure-aws-credentials@v1
-      # with:
-        # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-        # aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-        # aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-    # - name: Login to Amazon ECR
-      # id: login-ecr
-      # uses: aws-actions/amazon-ecr-login@v1
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
     # - name: Build, tag, and push image to Amazon ECR
       # id: build-image
       # env:
@@ -165,64 +165,81 @@ jobs:
           # echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
       # # https://github.com/marketplace/actions/amazon-ecs-deploy-task-definition-action-for-github-actions
 
+    - name: Fill in the new image ID in the Amazon ECS task definition
+      id: MyTaskDefinition
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: task-definition.json
+        container-name: MyContainerName
+        image: ${{ steps.build-image.outputs.image }}
+
+    - name: Deploy Amazon ECS task definition
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ${{ steps.MyTaskDefinition.outputs.task-definition }}
+        service: MyService
+        cluster: ecs-devops-sandbox-cluster
+        wait-for-service-stability: true
+        
+   # ecrecrecr:
+    # name: deploying aws ecr with terraform 
+    # runs-on: ubuntu-latest
+    # defaults:
+      # run:
+        # working-directory: 1
+    # # needs: tests
+    # env:
+      # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      # AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+ 
+    # steps:
+      # - name: Checkout 
+        # uses: actions/checkout@v2
+
+      # - name: Setup Terraform
+        # uses: hashicorp/setup-terraform@v1
+
+      # - name: Terraform format
+        # run: terraform fmt -check
+        # continue-on-error: true
+
+      # - name: Terraform init
+        # run: terraform init
+      
+      # - name: Terraform validate
+        # run: terraform validate
+
+      # - name: Terraform plan
+        # id: plan
+        # run: terraform plan
+        # continue-on-error: true
+
+      # - name: Terraform Plan Status
+        # if: steps.plan.outcome == 'failure'
+        # run: exit 1
+
+      # - name: Terraform Apply
+        # run: terraform apply -auto-approve  
+      
+    # - name: Download task definition
+      # run: |
+        # aws ecs describe-task-definition --task-definition andersen-exam-web-golang --query taskDefinition > task-definition.json
     # - name: Fill in the new image ID in the Amazon ECS task definition
-      # id: MyTaskDefinition
+      # id: task-def
       # uses: aws-actions/amazon-ecs-render-task-definition@v1
       # with:
         # task-definition: task-definition.json
-        # container-name: MyContainerName
+        # container-name: andersen-exam-golang-container
         # image: ${{ steps.build-image.outputs.image }}
 
     # - name: Deploy Amazon ECS task definition
       # uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       # with:
-        # task-definition: ${{ steps.MyTaskDefinition.outputs.task-definition }}
-        # service: MyService
-        # cluster: ecs-devops-sandbox-cluster
-        # wait-for-service-stability: true
-        
-   ecrecrecr:
-    name: deploying aws ecr with terraform 
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: 2
-    # needs: tests
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
- 
-    steps:
-      - name: Checkout 
-        uses: actions/checkout@v2
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
-
-      - name: Terraform format
-        run: terraform fmt -check
-        continue-on-error: true
-
-      - name: Terraform init
-        run: terraform init
-      
-      - name: Terraform validate
-        run: terraform validate
-
-      - name: Terraform plan
-        id: plan
-        run: terraform plan
-        continue-on-error: true
-
-      - name: Terraform Plan Status
-        if: steps.plan.outcome == 'failure'
-        run: exit 1
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve  
-      
-      
+        # task-definition: ${{ steps.task-def.outputs.task-definition }}
+        # service: andersen-exam-golang-service
+        # cluster: andersen-exam-golang-cluster
+        # wait-for-service-stability: true      
       
       
       
