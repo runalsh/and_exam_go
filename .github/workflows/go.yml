@@ -177,8 +177,8 @@ jobs:
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: ${{ steps.MyTaskDefinition.outputs.task-definition }}
-        service: MyService
-        cluster: ecs-devops-sandbox-cluster2
+        service: MyService2
+        cluster: ecs-devops-sandbox-cluster2 
         wait-for-service-stability: true
         
    # ecrecrecr:
