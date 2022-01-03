@@ -72,6 +72,7 @@
   ],
   "networkMode": "awsvpc",
   "cpu": "256",
+  "revision": 15,
   "status": "ACTIVE",
   "inferenceAccelerators": null,
   "proxyConfiguration": null,
