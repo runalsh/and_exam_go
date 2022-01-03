@@ -178,7 +178,7 @@ jobs:
       with:
         task-definition: ${{ steps.MyTaskDefinition.outputs.task-definition }}
         service: MyService
-        cluster: ecs-devops-sandbox-cluster
+        cluster: ecs-devops-sandbox-cluster2
         wait-for-service-stability: true
         
    # ecrecrecr:
