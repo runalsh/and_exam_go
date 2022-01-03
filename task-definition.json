@@ -27,12 +27,31 @@
             "ulimits": null,
             "dockerLabels": null,
             "dependsOn": null,
-            "repositoryCredentials": {
-                "credentialsParameter": ""
-            }
+           
         }
     ],
     "volumes": [],
+	"requiresAttributes": [
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.ecr-auth"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.task-iam-role"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "ecs.capability.execution-role-ecr-pull"
+    }
+  ],
+    "pidMode": null,
     "networkMode": "awsvpc",
     "memory": "512",
     "cpu": "256",
