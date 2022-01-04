@@ -29,7 +29,7 @@
       "memoryReservation": null,
       "volumesFrom": [],
       "stopTimeout": null,
-      "image": "082046016299.dkr.ecr.eu-central-1.amazonaws.com/gorepo",
+      "image": "082046016299.dkr.ecr.eu-central-1.amazonaws.com/gorepo:latest",
       "startTimeout": null,
       "firelensConfiguration": null,
       "dependsOn": null,
@@ -56,7 +56,7 @@
     "EXTERNAL",
     "EC2"
   ],
-  "taskDefinitionArn": "arn:aws:ecs:eu-central-1:082046016299:task-definition/definitiontaskgobridge",
+  "taskDefinitionArn": "arn:aws:ecs:eu-central-1:082046016299:task-definition/definitiontaskgobridge:latest",
   "family": "definitiontaskgobridge",
   "requiresAttributes": [
     {
