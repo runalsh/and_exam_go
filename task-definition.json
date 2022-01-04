@@ -77,7 +77,6 @@
   "networkMode": "bridge",
   "runtimePlatform": null,
   "cpu": "256",
-  "revision": 1,
   "status": "ACTIVE",
   "inferenceAccelerators": null,
   "proxyConfiguration": null,
