@@ -6,7 +6,7 @@ import (
 )
 
 func HelloWorld(c *gin.Context) {
-	c.String(200, "im golang app with force22")
+	c.String(200, "im golang app with force")
 }
 
 func main() {
