@@ -56,7 +56,6 @@
     "EXTERNAL",
     "EC2"
   ],
-  "taskDefinitionArn": "arn:aws:ecs:eu-central-1:082046016299:task-definition/definitiontaskgobridge:90",
   "family": "definitiontaskgobridge",
   "requiresAttributes": [
     {
