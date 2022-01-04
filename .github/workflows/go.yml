@@ -165,18 +165,35 @@ jobs:
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
       # https://github.com/marketplace/actions/amazon-ecs-deploy-task-definition-action-for-github-actions
     
-    - name: Download task definition
-      run: |
-        aws ecs describe-task-definition --task-definition definitiontaskgobridge --query taskDefinition > task-definition.json
-    
+    # - name: Download task definition
+      # run: |
+        # aws ecs describe-task-definition --task-definition definitiontaskgobridge --query taskDefinition > task-definition.json
+    # вместо ебалы можно сделать через render task definition https://github.com/aws-actions/amazon-ecs-deploy-task-definition/pull/116
+    # - name: Render Amazon ECS task definition
+      # id: render-web-container
+      # uses: aws-actions/amazon-ecs-render-task-definition@v1
+      # with:
+        # task-definition: task-definition.json
+        # container-name: web
+        # image: amazon/amazon-ecs-sample:latest
+        # environment-variables: "LOG_LEVEL=info"
+
+    # - name: Deploy to Amazon ECS service
+      # uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      # with:
+        # task-definition: ${{ steps.render-web-container.outputs.task-definition }}
+        # service: go-service
+        # cluster: go-cluster
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-def
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: task-definition.json
         container-name: go-container-ecr
-        image: ${{ steps.build-image.outputs.image }}
-
+        # image: ${{ steps.build-image.outputs.image }}
+        image: 082046016299.dkr.ecr.eu-central-1.amazonaws.com/gorepo:latest
+        environment-variables: "LOG_LEVEL=info"
+        
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
@@ -226,25 +243,7 @@ jobs:
       # - name: Terraform Apply
         # run: terraform apply -auto-approve  
       
-    # - name: Download task definition
-      # run: |
-        # aws ecs describe-task-definition --task-definition andersen-exam-web-golang --query taskDefinition > task-definition.json
-    # - name: Fill in the new image ID in the Amazon ECS task definition
-      # id: task-def
-      # uses: aws-actions/amazon-ecs-render-task-definition@v1
-      # with:
-        # task-definition: task-definition.json
-        # container-name: andersen-exam-golang-container
-        # image: ${{ steps.build-image.outputs.image }}
 
-    # - name: Deploy Amazon ECS task definition
-      # uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      # with:
-        # task-definition: ${{ steps.task-def.outputs.task-definition }}
-        # service: andersen-exam-golang-service
-        # cluster: andersen-exam-golang-cluster
-        # wait-for-service-stability: true      
-      
       
       
       
