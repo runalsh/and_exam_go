@@ -179,7 +179,7 @@ jobs:
         task-definition: ${{ steps.task-def.outputs.task-definition }}
         service: go-service
         cluster: go-cluster
-        wait-for-service-stability: true{% endraw %}
+        wait-for-service-stability: true
         
    # ecrecrecr:
     # name: deploying aws ecr with terraform 
