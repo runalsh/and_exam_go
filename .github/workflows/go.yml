@@ -164,36 +164,20 @@ jobs:
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
       # https://github.com/marketplace/actions/amazon-ecs-deploy-task-definition-action-for-github-actions
-    
-    # - name: Download task definition
-      # run: |
-        # aws ecs describe-task-definition --task-definition definitiontaskgobridge --query taskDefinition > task-definition.json
-    # вместо ебалы можно сделать через render task definition https://github.com/aws-actions/amazon-ecs-deploy-task-definition/pull/116
-    # - name: Render Amazon ECS task definition
-      # id: render-web-container
-      # uses: aws-actions/amazon-ecs-render-task-definition@v1
-      # with:
-        # task-definition: task-definition.json
-        # container-name: web
-        # image: amazon/amazon-ecs-sample:latest
-        # environment-variables: "LOG_LEVEL=info"
-
-    # - name: Deploy to Amazon ECS service
-      # uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      # with:
-        # task-definition: ${{ steps.render-web-container.outputs.task-definition }}
-        # service: go-service
-        # cluster: go-cluster
+    - name: Download task definition
+      run: |
+        aws ecs describe-task-definition --task-definition definitiontaskgobridge --query taskDefinition > task-definition.json
+    # ^^можно убрать и поменять в Render Task Definition image: 082046016299.dkr.ecr.eu-central-1.amazonaws.com/gorepo:latest  https://github.com/aws-actions/amazon-ecs-deploy-task-definition/pull/116
+    # пойдем по тупому пути и service запустим через DAEMON вместо реплики
+    # еще вариант снизить minimumHealthyPercent чтобы не второй таск не хватило паямти gjпоhttps://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/113#issuecomment-717465045 , но если перейдем на fargate то хер
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-def
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: task-definition.json
         container-name: go-container-ecr
-        # image: ${{ steps.build-image.outputs.image }}
-        image: 082046016299.dkr.ecr.eu-central-1.amazonaws.com/gorepo:latest
-        environment-variables: "LOG_LEVEL=info"
-        
+        image: ${{ steps.build-image.outputs.image }}
+
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
@@ -201,47 +185,7 @@ jobs:
         service: go-service
         cluster: go-cluster
         wait-for-service-stability: true
-        
-   # ecrecrecr:
-    # name: deploying aws ecr with terraform 
-    # runs-on: ubuntu-latest
-    # defaults:
-      # run:
-        # working-directory: 1
-    # # needs: tests
-    # env:
-      # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-      # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-      # AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
- 
-    # steps:
-      # - name: Checkout 
-        # uses: actions/checkout@v2
 
-      # - name: Setup Terraform
-        # uses: hashicorp/setup-terraform@v1
-
-      # - name: Terraform format
-        # run: terraform fmt -check
-        # continue-on-error: true
-
-      # - name: Terraform init
-        # run: terraform init
-      
-      # - name: Terraform validate
-        # run: terraform validate
-
-      # - name: Terraform plan
-        # id: plan
-        # run: terraform plan
-        # continue-on-error: true
-
-      # - name: Terraform Plan Status
-        # if: steps.plan.outcome == 'failure'
-        # run: exit 1
-
-      # - name: Terraform Apply
-        # run: terraform apply -auto-approve  
       
 
       
