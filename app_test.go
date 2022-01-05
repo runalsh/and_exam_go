@@ -13,7 +13,7 @@ func TestHelloWorld(t *testing.T) {
 	router := gin.Default()
 	gin.SetMode(gin.TestMode)
 
-	router.GET("/", HelloWorld)
+	router.GET("/", blablabla)
 
 	t.Run("check for 200 response", func(t *testing.T) {
 		assert.Equal(t, 200, w.Code)
