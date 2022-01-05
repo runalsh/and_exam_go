@@ -8,7 +8,7 @@ import (
 
 func blablabla(c *gin.Context) {
 	currentTime := time.Now()
-	c.String(200, "im golang app. plz dont overload me! version from 2022-01-05 18:53:14", currentTime.Format("2006.01.02 15:04:05"))
+	c.String(200, "im golang app. plz dont overload me!! version from 2022-01-05 18:53:14", currentTime.Format("2006.01.02 15:04:05"))
 }
 
 func main() {
