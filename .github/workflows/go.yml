@@ -164,9 +164,9 @@ jobs:
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
       # https://github.com/marketplace/actions/amazon-ecs-deploy-task-definition-action-for-github-actions
-    - name: Download task definition
-      run: |
-        aws ecs describe-task-definition --task-definition definitiontaskgobridge --query taskDefinition > task-definition.json
+    #- name: Download task definition
+    #  run: |
+    #    aws ecs describe-task-definition --task-definition definitiontaskgobridge --query taskDefinition > task-definition.json
     # ^^можно убрать и поменять в Render Task Definition image: 082046016299.dkr.ecr.eu-central-1.amazonaws.com/gorepo:latest  https://github.com/aws-actions/amazon-ecs-deploy-task-definition/pull/116
     # пойдем по тупому пути и service запустим через DAEMON вместо реплики
     # еще вариант снизить minimumHealthyPercent чтобы не второй таск не хватило паямти gjпоhttps://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/113#issuecomment-717465045 , но если перейдем на fargate то хер
