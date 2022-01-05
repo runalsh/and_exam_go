@@ -27,6 +27,7 @@ jobs:
           sarif_file: snyk.sarif
           
       - name: send massage with snyk result
+        if: failure()
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_TO }}
@@ -34,9 +35,8 @@ jobs:
           message: |
             ${{ github.actor }} created commit:
             Commit message: ${{ github.event.commits[0].message }}
-            Snyk result: ${{ steps.snyk_test.outputs.snyk_test }}\n${{ steps.line.outputs.line }}\n
-            Snyk Code Test: ${{ steps.snyk_code.outputs.snyk_code }}\n${{ steps.line.outputs.line }}
             Repository: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            Result: ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
           #format: "markdown"
           disable_web_page_preview: true
           
@@ -48,7 +48,7 @@ jobs:
             server_port: 465
             username: ${{secrets.YANDEX_MAIL_USERNAME}}
             password: ${{secrets.YANDEX_MAIL_PASSWORD}}
-            subject: Github Actions job result
+            subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
             to: ${{ secrets.MAIL_FOR_INFO }}
             from: github action ${{github.sha}} on ${{github.repository}}
             body: Build job of ${{github.repository}} completed successfully!
@@ -67,17 +67,19 @@ jobs:
       run: go build -v ./...
     - name: testing
       run: go test -v ./...
-    - name: send massage with test
+    - name: send massage with snyk result
+      if: failure()
       uses: appleboy/telegram-action@master
       with:
-        to: ${{ secrets.TELEGRAM_TO }}
-        token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: |
-          ${{ github.actor }} created commit:
-          Commit message: ${{ github.event.commits[0].message }}
-          Test result: ${{ steps.snyk_test.outputs.snyk_test }}\n${{ steps.line.outputs.line }}\n
-          Repository: https://github.com/${{ github.repository }}/commit/${{github.sha}}
-        disable_web_page_preview: true
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            ${{ github.actor }} created commit:
+            Commit message: ${{ github.event.commits[0].message }}
+            Repository: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            Result: ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
+          #format: "markdown"
+          disable_web_page_preview: true
           
     - name: Send Gmail notification
       if: always()
@@ -87,7 +89,7 @@ jobs:
             server_port: 465
             username: ${{secrets.YANDEX_MAIL_USERNAME}}
             password: ${{secrets.YANDEX_MAIL_PASSWORD}}
-            subject: Github Actions job result
+            subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
             to: ${{ secrets.MAIL_FOR_INFO }}
             from: github action ${{github.sha}} on ${{github.repository}}
             body: test job of ${{github.repository}} completed successfully!
@@ -134,6 +136,33 @@ jobs:
         run: terraform apply -auto-approve
         continue-on-error: true
         
+      - name: send massage with snyk result
+        if: failure()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            ${{ github.actor }} created commit:
+            Commit message: ${{ github.event.commits[0].message }}
+            Repository: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            Result: ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
+          #format: "markdown"
+          disable_web_page_preview: true  
+        
+      - name: Send Gmail notification
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+            server_address: smtp.yandex.ru
+            server_port: 465
+            username: ${{secrets.YANDEX_MAIL_USERNAME}}
+            password: ${{secrets.YANDEX_MAIL_PASSWORD}}
+            subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
+            to: ${{ secrets.MAIL_FOR_INFO }}
+            from: github action ${{github.sha}} on ${{github.repository}}
+            body: test job of ${{github.repository}} completed successfully!
+        
   deployaws:
     name: deploying aws ecr with terraform 
     runs-on: ubuntu-latest
@@ -173,7 +202,34 @@ jobs:
         # run: exit 1
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve      
+        run: terraform apply -auto-approve
+        
+      - name: send massage with snyk result
+        if: failure()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            ${{ github.actor }} created commit:
+            Commit message: ${{ github.event.commits[0].message }}
+            Repository: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            Result: ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
+          #format: "markdown"
+          disable_web_page_preview: true  
+        
+      - name: Send Gmail notification
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+            server_address: smtp.yandex.ru
+            server_port: 465
+            username: ${{secrets.YANDEX_MAIL_USERNAME}}
+            password: ${{secrets.YANDEX_MAIL_PASSWORD}}
+            subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
+            to: ${{ secrets.MAIL_FOR_INFO }}
+            from: github action ${{github.sha}} on ${{github.repository}}
+            body: test job of ${{github.repository}} completed successfully!
 
   pushtoecr:
     needs: deployaws
@@ -223,9 +279,37 @@ jobs:
         service: go-service
         cluster: go-cluster
         wait-for-service-stability: true
+        
+    - name: send massage with snyk result
+        if: failure()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            ${{ github.actor }} created commit:
+            Commit message: ${{ github.event.commits[0].message }}
+            Repository: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            Result: ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
+          #format: "markdown"
+          disable_web_page_preview: true    
+        
+    - name: Send Gmail notification
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+            server_address: smtp.yandex.ru
+            server_port: 465
+            username: ${{secrets.YANDEX_MAIL_USERNAME}}
+            password: ${{secrets.YANDEX_MAIL_PASSWORD}}
+            subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
+            to: ${{ secrets.MAIL_FOR_INFO }}
+            from: github action ${{github.sha}} on ${{github.repository}}
+            body: ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
 
       
 
       
       
       
+
