@@ -123,18 +123,16 @@ jobs:
       
       - name: Terraform validate
         run: terraform validate
+        continue-on-error: true
 
       - name: Terraform plan
         id: plan
         run: terraform plan
         continue-on-error: true
 
-      # - name: Terraform Plan Status
-        # if: steps.plan.outcome == 'failure'
-        # run: exit 1
-
       - name: Terraform Apply
         run: terraform apply -auto-approve
+        continue-on-error: true
         
   # deployaws:
     # name: deploying aws ecr with terraform 
