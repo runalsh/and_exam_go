@@ -3,10 +3,12 @@ package main
 import (
     "fmt"
     "github.com/gin-gonic/gin"
+	"time"
 )
 
 func blablabla(c *gin.Context) {
-	c.String(200, "im golang app. plz dont overload me")
+	currentTime := time.Now()
+	c.String(200, "im golang app. plz dont overload me", currentTime.Format("2006.01.02 15:04:05"))
 }
 
 func main() {
@@ -19,3 +21,5 @@ func main() {
 	}
 
 }
+
+
