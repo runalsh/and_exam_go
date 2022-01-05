@@ -7,141 +7,181 @@ on:
     branches: [ main ]
 
 jobs:
-  # snyk:
-    # name: snyk for vulns
-    # runs-on: ubuntu-latest
-    # steps:
-      # - name: Checkout
-        # uses: actions/checkout@v2
+  snyk:
+    name: snyk for vulns
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
       
-      # - name: Run Snyk to check configuration files for security issues
-        # uses: snyk/actions/golang@master
-        # env:
-          # SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        # with:
-          # args: --sarif-file-output=snyk.sarif        
-      # - name: Upload result to GitHub Code Scanning
-        # uses: github/codeql-action/upload-sarif@v1
-        # if: always()
-        # with:
-          # sarif_file: snyk.sarif
+      - name: Run Snyk to check configuration files for security issues
+        uses: snyk/actions/golang@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --sarif-file-output=snyk.sarif        
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v1
+        if: always()
+        with:
+          sarif_file: snyk.sarif
           
-      # - name: send massage with snyk result
-        # uses: appleboy/telegram-action@master
-        # with:
-          # to: ${{ secrets.TELEGRAM_TO }}
-          # token: ${{ secrets.TELEGRAM_TOKEN }}
-          # message: |
-            # ${{ github.actor }} created commit:
-            # Commit message: ${{ github.event.commits[0].message }}
-            # Snyk result: ${{ steps.snyk_test.outputs.snyk_test }}\n${{ steps.line.outputs.line }}\n
-            # Snyk Code Test: ${{ steps.snyk_code.outputs.snyk_code }}\n${{ steps.line.outputs.line }}
-            # Repository: https://github.com/${{ github.repository }}/commit/${{github.sha}}
-          # #format: "markdown"
-          # disable_web_page_preview: true
+      - name: send massage with snyk result
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            ${{ github.actor }} created commit:
+            Commit message: ${{ github.event.commits[0].message }}
+            Snyk result: ${{ steps.snyk_test.outputs.snyk_test }}\n${{ steps.line.outputs.line }}\n
+            Snyk Code Test: ${{ steps.snyk_code.outputs.snyk_code }}\n${{ steps.line.outputs.line }}
+            Repository: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+          #format: "markdown"
+          disable_web_page_preview: true
           
-      # - name: Send Gmail notification
-        # if: always()
-        # uses: dawidd6/action-send-mail@v3
-        # with:
-            # server_address: smtp.yandex.ru
-            # server_port: 465
-            # username: ${{secrets.YANDEX_MAIL_USERNAME}}
-            # password: ${{secrets.YANDEX_MAIL_PASSWORD}}
-            # subject: Github Actions job result
-            # to: shaidullin2@gmail.com 
-            # from: github action ${{github.sha}} on ${{github.repository}}
-            # body: Build job of ${{github.repository}} completed successfully!
-            # attachments: snyk.sarif
-  # tests:
-    # needs: snyk
-    # name: testing and building
-    # runs-on: ubuntu-latest
-    # steps:
-    # - uses: actions/checkout@v2
-    # - name: install go 
-      # uses: actions/setup-go@v2
-      # with:
-        # go-version: 1.15.15
-    # - name: building
-      # run: go build -v ./...
-    # - name: testing
-      # run: go test -v ./...    
-    # - name: send massage with test
-      # uses: appleboy/telegram-action@master
-      # with:
-        # to: ${{ secrets.TELEGRAM_TO }}
-        # token: ${{ secrets.TELEGRAM_TOKEN }}
-        # message: |
-          # ${{ github.actor }} created commit:
-          # Commit message: ${{ github.event.commits[0].message }}
-          # Test result: ${{ steps.snyk_test.outputs.snyk_test }}\n${{ steps.line.outputs.line }}\n
-          # Repository: https://github.com/${{ github.repository }}/commit/${{github.sha}}
-        # disable_web_page_preview: true
+      - name: Send Gmail notification
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+            server_address: smtp.yandex.ru
+            server_port: 465
+            username: ${{secrets.YANDEX_MAIL_USERNAME}}
+            password: ${{secrets.YANDEX_MAIL_PASSWORD}}
+            subject: Github Actions job result
+            to: shaidullin2@gmail.com 
+            from: github action ${{github.sha}} on ${{github.repository}}
+            body: Build job of ${{github.repository}} completed successfully!
+            attachments: snyk.sarif
+  tests:
+    needs: snyk
+    name: testing and building
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: install go 
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15.15
+    - name: building
+      run: go build -v ./...
+    - name: testing
+      run: go test -v ./...    
+    - name: send massage with test
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: |
+          ${{ github.actor }} created commit:
+          Commit message: ${{ github.event.commits[0].message }}
+          Test result: ${{ steps.snyk_test.outputs.snyk_test }}\n${{ steps.line.outputs.line }}\n
+          Repository: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+        disable_web_page_preview: true
           
-      # - name: Send Gmail notification
-        # if: always()
-        # uses: dawidd6/action-send-mail@v3
-        # with:
-            # server_address: smtp.yandex.ru
-            # server_port: 465
-            # username: ${{secrets.YANDEX_MAIL_USERNAME}}
-            # password: ${{secrets.YANDEX_MAIL_PASSWORD}}
-            # subject: Github Actions job result
-            # to: shaidullin2@gmail.com
-            # from: github action ${{github.sha}} on ${{github.repository}}
-            # body: test job of ${{github.repository}} completed successfully!
-            # attachments: snyk.sarif  
+      - name: Send Gmail notification
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+            server_address: smtp.yandex.ru
+            server_port: 465
+            username: ${{secrets.YANDEX_MAIL_USERNAME}}
+            password: ${{secrets.YANDEX_MAIL_PASSWORD}}
+            subject: Github Actions job result
+            to: shaidullin2@gmail.com
+            from: github action ${{github.sha}} on ${{github.repository}}
+            body: test job of ${{github.repository}} completed successfully!
+            attachments: snyk.sarif  
             
 ################### HERE CAN BE GOSEC CHECK ####################        
   
-  # deployecr:
-    # name: deploying aws ecr with terraform 
-    # runs-on: ubuntu-latest
-    # defaults:
-      # run:
-        # working-directory: awsecr
-    # # needs: tests
-    # env:
-      # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-      # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-      # AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+  deployecr:
+    name: deploying aws ecr with terraform 
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: awsecr
+    needs: tests
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
  
-    # steps:
-      # - name: Checkout 
-        # uses: actions/checkout@v2
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v2
 
-      # - name: Setup Terraform
-        # uses: hashicorp/setup-terraform@v1
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
 
-      # - name: Terraform format
-        # run: terraform fmt -check
-        # continue-on-error: true
+      - name: Terraform format
+        run: terraform fmt -check
+        continue-on-error: true
 
-      # - name: Terraform init
-        # run: terraform init
+      - name: Terraform init
+        run: terraform init
       
-      # - name: Terraform validate
-        # run: terraform validate
+      - name: Terraform validate
+        run: terraform validate
 
-      # - name: Terraform plan
-        # id: plan
-        # run: terraform plan
-        # continue-on-error: true
+      - name: Terraform plan
+        id: plan
+        run: terraform plan
+        continue-on-error: true
 
-      # - name: Terraform Plan Status
-        # if: steps.plan.outcome == 'failure'
-        # run: exit 1
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
 
-      # - name: Terraform Apply
-        # run: terraform apply -auto-approve
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        
+  deployaws:
+    name: deploying aws ecr with terraform 
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: awsdeploy
+    needs: deployecr
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+ 
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform format
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform init
+        run: terraform init
+      
+      - name: Terraform validate
+        run: terraform validate
+
+      - name: Terraform plan
+        id: plan
+        run: terraform plan
+        continue-on-error: true
+
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve      
 
   pushtoecr:
-    # needs: deployecr
+    needs: deployaws
     name: start deploying to awc ecr
     runs-on: ubuntu-latest
-  
-    steps:
+      steps:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Configure AWS credentials
