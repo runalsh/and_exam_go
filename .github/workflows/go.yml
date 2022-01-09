@@ -207,8 +207,8 @@ jobs:
       - name: Terraform init
         run: terraform init
         
-      - name: Terraform taint
-        run: terraform taint
+     # - name: Terraform taint
+     #   run: terraform taint
       
       - name: Terraform validate
         run: terraform validate
