@@ -181,85 +181,88 @@ jobs:
             # # from: github action ${{github.sha}} on ${{github.repository}}
             # # body: test job of ${{github.repository}} completed successfully!
         
-  deployaws:
-    name: deploying aws with terraform 
+  # deployaws:
+    # name: deploying aws with terraform 
+    # runs-on: ubuntu-latest
+    # defaults:
+      # run:
+        # working-directory: awsdeploy
+    # # needs: deployecr
+    # env:
+      # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      # AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+ 
+    # steps:
+      # - name: Checkout 
+        # uses: actions/checkout@v2
+
+      # - name: Setup Terraform
+        # uses: hashicorp/setup-terraform@v1
+
+      # - name: Terraform format
+        # run: terraform fmt -check
+        # continue-on-error: true
+
+      # - name: Terraform init
+        # run: terraform init
+        
+      # # - name: Download task definition
+        # # run: |
+            # # aws ecs describe-task-definition --task-definition definitiontaskgobridge --query taskDefinition > task-definition.json
+            # # ls -la
+     # # - name: Terraform taint
+     # #   run: terraform taint
+      
+      # - name: Terraform validate
+        # run: terraform validate
+
+      # - name: Terraform plan
+        # id: plan
+        # run: terraform plan
+        # continue-on-error: true
+
+      # # - name: Terraform Plan Status
+        # # if: steps.plan.outcome == 'failure'
+        # # run: exit 1
+
+      # - name: Terraform Apply
+        # run: terraform apply -auto-approve
+        
+      # - name: send massage to tg
+        # if: always()
+        # uses: appleboy/telegram-action@master
+        # with:
+          # to: ${{ secrets.TELEGRAM_TO }}
+          # token: ${{ secrets.TELEGRAM_TOKEN }}
+          # message: |
+            # ${{ github.actor }} created commit:
+            # Commit message: ${{ github.event.commits[0].message }}
+            # Repository: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            # Result: ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
+          # #format: "markdown"
+          # disable_web_page_preview: true  
+        
+      # # - name: Send Gmail notification
+        # # if: always()
+        # # uses: dawidd6/action-send-mail@v3
+        # # with:
+            # # server_address: smtp.yandex.ru
+            # # server_port: 465
+            # # username: ${{secrets.YANDEX_MAIL_USERNAME}}
+            # # password: ${{secrets.YANDEX_MAIL_PASSWORD}}
+            # # subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
+            # # to: ${{ secrets.MAIL_FOR_INFO }}
+            # # from: github action ${{github.sha}} on ${{github.repository}}
+            # # body: test job of ${{github.repository}} completed successfully!
+
+  pushtoecr:
+    # needs: deployaws
+    name: start deploying to awc ecr
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: awsdeploy
-    # needs: deployecr
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
- 
-    steps:
-      - name: Checkout 
-        uses: actions/checkout@v2
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
-
-      - name: Terraform format
-        run: terraform fmt -check
-        continue-on-error: true
-
-      - name: Terraform init
-        run: terraform init
-        
-      - name: Download task definition
-        run: |
-            aws ecs describe-task-definition --task-definition definitiontaskgobridge --query taskDefinition > task-definition.json
-            ls -la
-     # - name: Terraform taint
-     #   run: terraform taint
-      
-      - name: Terraform validate
-        run: terraform validate
-
-      - name: Terraform plan
-        id: plan
-        run: terraform plan
-        continue-on-error: true
-
-      # - name: Terraform Plan Status
-        # if: steps.plan.outcome == 'failure'
-        # run: exit 1
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
-        
-      - name: send massage to tg
-        if: always()
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: |
-            ${{ github.actor }} created commit:
-            Commit message: ${{ github.event.commits[0].message }}
-            Repository: https://github.com/${{ github.repository }}/commit/${{github.sha}}
-            Result: ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
-          #format: "markdown"
-          disable_web_page_preview: true  
-        
-      # - name: Send Gmail notification
-        # if: always()
-        # uses: dawidd6/action-send-mail@v3
-        # with:
-            # server_address: smtp.yandex.ru
-            # server_port: 465
-            # username: ${{secrets.YANDEX_MAIL_USERNAME}}
-            # password: ${{secrets.YANDEX_MAIL_PASSWORD}}
-            # subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
-            # to: ${{ secrets.MAIL_FOR_INFO }}
-            # from: github action ${{github.sha}} on ${{github.repository}}
-            # body: test job of ${{github.repository}} completed successfully!
-
-  pushtoecr:
-    needs: deployaws
-    name: start deploying to awc ecr
-    runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -286,6 +289,7 @@ jobs:
     - name: Download task definition
       run: |
         aws ecs describe-task-definition --task-definition definitiontaskgobridge --query taskDefinition > task-definition.json
+        ls -la
     # ^^можно убрать и поменять в Render Task Definition image: 082046016299.dkr.ecr.eu-central-1.amazonaws.com/gorepo:latest  https://github.com/aws-actions/amazon-ecs-deploy-task-definition/pull/116
     # пойдем по тупому пути и service запустим через DAEMON вместо реплики
     # еще вариант снизить minimumHealthyPercent чтобы не второй таск не хватило паямти gjпоhttps://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/113#issuecomment-717465045 , но если перейдем на fargate то хер
