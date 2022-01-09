@@ -1,3 +1,4 @@
+
 #==========================================IAM===============
 
 provider "aws" {
@@ -196,7 +197,7 @@ resource "aws_route_table_association" "vpc_route_assoc" {
 
 resource "aws_launch_configuration" "launcher" {
   name_prefix   = "launcher-go-ecs"
-  associate_public_ip_address = true
+  associate_public_ip_address = false
   enable_monitoring           = true
   image_id                    = data.aws_ami.amazon_linux.id
   instance_type               = "t2.micro"
@@ -224,7 +225,7 @@ resource "aws_autoscaling_group" "autoscale_group" {
   metrics_granularity     = "2Minute"
   min_size                = 0
   vpc_zone_identifier       = aws_subnet.subnets.*.id
-  # depends_on                = [aws_ecs_cluster.go-cluster]
+  depends_on                = [aws_ecs_cluster.go-cluster]
   # service_linked_role_arn = aws_iam_role.awsserviceroleforautoscaling.arn
   protect_from_scale_in = true
   tag {
@@ -244,28 +245,28 @@ resource "aws_autoscaling_group" "autoscale_group" {
 
 resource "aws_ecs_cluster" "go-cluster" {
   name = "go-cluster"
-  capacity_providers = [aws_ecs_capacity_provider.ecs-capacity.name]  
+  # capacity_providers = [aws_ecs_capacity_provider.ecs-capacity.name]  
 }
 
-resource "aws_ecs_capacity_provider" "ecs-capacity" {
-  name = "capacity-provider-golang"
-  auto_scaling_group_provider {
-    auto_scaling_group_arn         = aws_autoscaling_group.autoscale_group.arn
-   managed_termination_protection = "ENABLED"
-    managed_scaling {
-      status          = "ENABLED"
-      target_capacity = 100
-    }
-  }
-    lifecycle {
-    create_before_destroy = true
-  }
-}
+# resource "aws_ecs_capacity_provider" "ecs-capacity" {
+  # name = "capacity-provider-golang"
+  # auto_scaling_group_provider {
+    # auto_scaling_group_arn         = aws_autoscaling_group.autoscale_group.arn
+   # managed_termination_protection = "ENABLED"
+    # managed_scaling {
+      # status          = "ENABLED"
+      # target_capacity = 100
+    # }
+  # }
+    # # lifecycle {
+    # # create_before_destroy = true
+  # # }
+# }
 
 resource "aws_ecs_task_definition" "task-definition" {
   family                = "definitiontaskgobridge"
   network_mode          = "bridge"
-  container_definitions =  file("task-definition.json")
+  container_definitions =  file("init-task-definition.json")
   # container_definitions = jsonencode([
     # {
       # name      = "go-container-ecr"
@@ -289,6 +290,8 @@ resource "aws_ecs_service" "service" {
   name                               = "go-service"
   cluster                            = aws_ecs_cluster.go-cluster.id
   task_definition                    = aws_ecs_task_definition.task-definition.arn
+  launch_type = "EC2"
+  depends_on  = [aws_lb_listener.lb-listener]
   load_balancer {
     target_group_arn = aws_lb_target_group.lb_tg.arn
     container_name   = "go-container-ecr"
@@ -304,8 +307,6 @@ resource "aws_ecs_service" "service" {
   lifecycle {
     ignore_changes = [desired_count]
   }
-  launch_type = "EC2"
-  depends_on  = [aws_lb_listener.lb-listener]
 }
 
 #=================================BALANCER=========================
