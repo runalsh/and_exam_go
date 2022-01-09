@@ -116,7 +116,7 @@ jobs:
 ################## HERE CAN BE GOSEC CHECK ####################        
   
   deployecr:
-    name: deploying aws ecr with terraform 
+    name: deploying aws ecr with terraform
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -182,7 +182,7 @@ jobs:
             # body: test job of ${{github.repository}} completed successfully!
         
   deployaws:
-    name: deploying aws ecr with terraform 
+    name: deploying aws with terraform 
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -206,6 +206,9 @@ jobs:
 
       - name: Terraform init
         run: terraform init
+        
+      - name: Terraform taint
+        run: terraform taint
       
       - name: Terraform validate
         run: terraform validate
