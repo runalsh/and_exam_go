@@ -1,3 +1,4 @@
+
 on:
   push:
     branches: [ main ]
@@ -209,7 +210,6 @@ jobs:
       - name: Download task definition
         run: |
             aws ecs describe-task-definition --task-definition definitiontaskgobridge --query taskDefinition > task-definition.json 
-            ls -la
      # - name: Terraform taint
      #   run: terraform taint
       
@@ -285,7 +285,6 @@ jobs:
     - name: Download task definition
       run: |
         aws ecs describe-task-definition --task-definition definitiontaskgobridge --query taskDefinition > task-definition.json
-        ls -la
     # ^^можно убрать и поменять в Render Task Definition image: 082046016299.dkr.ecr.eu-central-1.amazonaws.com/gorepo:latest  https://github.com/aws-actions/amazon-ecs-deploy-task-definition/pull/116
     # пойдем по тупому пути и service запустим через DAEMON вместо реплики
     # еще вариант снизить minimumHealthyPercent чтобы не второй таск не хватило паямти gjпоhttps://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/113#issuecomment-717465045 , но если перейдем на fargate то хер
