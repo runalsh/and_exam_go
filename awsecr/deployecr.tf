@@ -33,6 +33,7 @@ resource "aws_s3_bucket" "terraform_state" {
   }
 }
 
+
 resource "aws_ecr_repository" "app_repo_go" {
   name = "gorepo"
 
