@@ -3,12 +3,12 @@ on:
     branches: [ main ]
     paths-ignore:
       - '*.md'
-      - '.github/workflows/**'
+    #  - '.github/workflows/**'
   pull_request:
     branches: [ main ]
     paths-ignore:
       - '*.md'
-      - '.github/workflows/**'
+     # - '.github/workflows/**'
 
 jobs:
         
