@@ -1,4 +1,3 @@
-
 #==========================================IAM===============
 
 provider "aws" {
@@ -266,7 +265,7 @@ resource "aws_ecs_capacity_provider" "ecs-capacity" {
 resource "aws_ecs_task_definition" "task-definition" {
   family                = "definitiontaskgobridge"
   network_mode          = "bridge"
-  container_definitions =  file("init-task-definition.json")
+  container_definitions =  file("task-definition.json")
   # container_definitions = jsonencode([
     # {
       # name      = "go-container-ecr"
