@@ -1,3 +1,4 @@
+
 on:
   push:
     branches: [ main ]
@@ -31,8 +32,8 @@ jobs:
         with:
           sarif_file: snyk.sarif
           
-      - name: send massage with snyk result
-        if: failure()
+      - name: send massage to tg
+        if: always()
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_TO }}
@@ -45,19 +46,19 @@ jobs:
           #format: "markdown"
           disable_web_page_preview: true
           
-      - name: Send Gmail notification
-        if: always()
-        uses: dawidd6/action-send-mail@v3
-        with:
-            server_address: smtp.yandex.ru
-            server_port: 465
-            username: ${{secrets.YANDEX_MAIL_USERNAME}}
-            password: ${{secrets.YANDEX_MAIL_PASSWORD}}
-            subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
-            to: ${{ secrets.MAIL_FOR_INFO }}
-            from: github action ${{github.sha}} on ${{github.repository}}
-            body: Build job of ${{github.repository}} completed successfully!
-            attachments: snyk.sarif
+      # - name: Send Gmail notification
+        # if: always()
+        # uses: dawidd6/action-send-mail@v3
+        # with:
+            # server_address: smtp.yandex.ru
+            # server_port: 465
+            # username: ${{secrets.YANDEX_MAIL_USERNAME}}
+            # password: ${{secrets.YANDEX_MAIL_PASSWORD}}
+            # subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
+            # to: ${{ secrets.MAIL_FOR_INFO }}
+            # from: github action ${{github.sha}} on ${{github.repository}}
+            # body: Build job of ${{github.repository}} completed successfully!
+            # attachments: snyk.sarif
   tests:
     needs: snyk
     name: testing and building
@@ -72,8 +73,8 @@ jobs:
       run: go build -v ./...
     - name: testing
       run: go test -v ./...
-    - name: send massage with snyk result
-      if: failure()
+    - name: send massage to tg
+      if: always()
       uses: appleboy/telegram-action@master
       with:
           to: ${{ secrets.TELEGRAM_TO }}
@@ -86,19 +87,19 @@ jobs:
           #format: "markdown"
           disable_web_page_preview: true
           
-    - name: Send Gmail notification
-      if: always()
-      uses: dawidd6/action-send-mail@v3
-      with:
-            server_address: smtp.yandex.ru
-            server_port: 465
-            username: ${{secrets.YANDEX_MAIL_USERNAME}}
-            password: ${{secrets.YANDEX_MAIL_PASSWORD}}
-            subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
-            to: ${{ secrets.MAIL_FOR_INFO }}
-            from: github action ${{github.sha}} on ${{github.repository}}
-            body: test job of ${{github.repository}} completed successfully!
-            attachments: snyk.sarif  
+    # - name: Send Gmail notification
+      # if: always()
+      # uses: dawidd6/action-send-mail@v3
+      # with:
+            # server_address: smtp.yandex.ru
+            # server_port: 465
+            # username: ${{secrets.YANDEX_MAIL_USERNAME}}
+            # password: ${{secrets.YANDEX_MAIL_PASSWORD}}
+            # subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
+            # to: ${{ secrets.MAIL_FOR_INFO }}
+            # from: github action ${{github.sha}} on ${{github.repository}}
+            # body: test job of ${{github.repository}} completed successfully!
+            # attachments: snyk.sarif  
   golangci:
     needs: tests
     name: lint
@@ -120,7 +121,7 @@ jobs:
     defaults:
       run:
         working-directory: awsecr
-    needs: tests
+    needs: golangci
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
@@ -153,8 +154,8 @@ jobs:
         run: terraform apply -auto-approve
         continue-on-error: true
         
-      - name: send massage with snyk result
-        if: failure()
+      - name: send massage to tg
+        if: always()
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_TO }}
@@ -167,18 +168,18 @@ jobs:
           #format: "markdown"
           disable_web_page_preview: true  
         
-      - name: Send Gmail notification
-        if: always()
-        uses: dawidd6/action-send-mail@v3
-        with:
-            server_address: smtp.yandex.ru
-            server_port: 465
-            username: ${{secrets.YANDEX_MAIL_USERNAME}}
-            password: ${{secrets.YANDEX_MAIL_PASSWORD}}
-            subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
-            to: ${{ secrets.MAIL_FOR_INFO }}
-            from: github action ${{github.sha}} on ${{github.repository}}
-            body: test job of ${{github.repository}} completed successfully!
+      # - name: Send Gmail notification
+        # if: always()
+        # uses: dawidd6/action-send-mail@v3
+        # with:
+            # server_address: smtp.yandex.ru
+            # server_port: 465
+            # username: ${{secrets.YANDEX_MAIL_USERNAME}}
+            # password: ${{secrets.YANDEX_MAIL_PASSWORD}}
+            # subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
+            # to: ${{ secrets.MAIL_FOR_INFO }}
+            # from: github action ${{github.sha}} on ${{github.repository}}
+            # body: test job of ${{github.repository}} completed successfully!
         
   deployaws:
     name: deploying aws ecr with terraform 
@@ -221,8 +222,8 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -auto-approve
         
-      - name: send massage with snyk result
-        if: failure()
+      - name: send massage to tg
+        if: always()
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_TO }}
@@ -235,18 +236,18 @@ jobs:
           #format: "markdown"
           disable_web_page_preview: true  
         
-      - name: Send Gmail notification
-        if: always()
-        uses: dawidd6/action-send-mail@v3
-        with:
-            server_address: smtp.yandex.ru
-            server_port: 465
-            username: ${{secrets.YANDEX_MAIL_USERNAME}}
-            password: ${{secrets.YANDEX_MAIL_PASSWORD}}
-            subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
-            to: ${{ secrets.MAIL_FOR_INFO }}
-            from: github action ${{github.sha}} on ${{github.repository}}
-            body: test job of ${{github.repository}} completed successfully!
+      # - name: Send Gmail notification
+        # if: always()
+        # uses: dawidd6/action-send-mail@v3
+        # with:
+            # server_address: smtp.yandex.ru
+            # server_port: 465
+            # username: ${{secrets.YANDEX_MAIL_USERNAME}}
+            # password: ${{secrets.YANDEX_MAIL_PASSWORD}}
+            # subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
+            # to: ${{ secrets.MAIL_FOR_INFO }}
+            # from: github action ${{github.sha}} on ${{github.repository}}
+            # body: test job of ${{github.repository}} completed successfully!
 
   pushtoecr:
     needs: deployaws
@@ -297,8 +298,8 @@ jobs:
         cluster: go-cluster
         wait-for-service-stability: true
         
-    - name: send massage with snyk result
-      if: failure()
+    - name: send massage to tg
+      if: always()
       uses: appleboy/telegram-action@master
       with:
           to: ${{ secrets.TELEGRAM_TO }}
@@ -311,18 +312,18 @@ jobs:
           #format: "markdown"
           disable_web_page_preview: true    
         
-    - name: Send Gmail notification
-      if: always()
-      uses: dawidd6/action-send-mail@v3
-      with:
-            server_address: smtp.yandex.ru
-            server_port: 465
-            username: ${{secrets.YANDEX_MAIL_USERNAME}}
-            password: ${{secrets.YANDEX_MAIL_PASSWORD}}
-            subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
-            to: ${{ secrets.MAIL_FOR_INFO }}
-            from: github action ${{github.sha}} on ${{github.repository}}
-            body: ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
+    # - name: Send Gmail notification
+      # if: always()
+      # uses: dawidd6/action-send-mail@v3
+      # with:
+            # server_address: smtp.yandex.ru
+            # server_port: 465
+            # username: ${{secrets.YANDEX_MAIL_USERNAME}}
+            # password: ${{secrets.YANDEX_MAIL_PASSWORD}}
+            # subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
+            # to: ${{ secrets.MAIL_FOR_INFO }}
+            # from: github action ${{github.sha}} on ${{github.repository}}
+            # body: ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
 
       
 
