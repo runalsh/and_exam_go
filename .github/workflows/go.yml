@@ -207,6 +207,9 @@ jobs:
       - name: Terraform init
         run: terraform init
         
+      - name: Download task definition
+        run: |
+            aws ecs describe-task-definition --task-definition definitiontaskgobridge --query taskDefinition > task-definition.json  
      # - name: Terraform taint
      #   run: terraform taint
       
