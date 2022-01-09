@@ -54,11 +54,11 @@ terraform {
   backend "s3" {
     bucket = "py-app-ecr-state"
     key    = "awsecr/awsecr.tfstate"
-	lifecycle {
-    prevent_destroy = true
-	}
-    versioning {
-    enabled = true
-    }
+#	lifecycle {
+#    prevent_destroy = true
+#	}
+ #   versioning {
+#    enabled = true
+ #   }
   }
 }
