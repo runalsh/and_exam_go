@@ -25,7 +25,6 @@ resource "aws_ecr_repository" "app_repo_go" {
 
 resource "aws_ecr_lifecycle_policy" "repo_policy" {
   repository = aws_ecr_repository.app_repo_go.name
-  # policy     = file("life_go_ecr.json")
 
 policy = <<EOF
 {
@@ -46,3 +45,18 @@ policy = <<EOF
 }
 EOF
 }
+
+# придется сохранять, ничего умнее не придумал
+# альтернатива - обьединить ecr ecs dep в один tf и сохранять его
+
+terraform {
+  backend "s3" {
+    bucket = "py-app-ecr-state"
+    key    = "awsecr/awsecr.tfstate"
+	lifecycle {
+    prevent_destroy = true
+	}
+    versioning {
+    enabled = true
+  }
+}}
