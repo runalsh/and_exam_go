@@ -272,20 +272,20 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
         aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-    - name: Build, tag, and push image to Amazon ECR
-      id: build-image
-      env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: gorepo
-          IMAGE_TAG: go-image-${{ github.sha }}
-      run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-      # https://github.com/marketplace/actions/amazon-ecs-deploy-task-definition-action-for-github-actions
+    # - name: Login to Amazon ECR
+      # id: login-ecr
+      # uses: aws-actions/amazon-ecr-login@v1
+    # - name: Build, tag, and push image to Amazon ECR
+      # id: build-image
+      # env:
+          # ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          # ECR_REPOSITORY: gorepo
+          # IMAGE_TAG: go-image-${{ github.sha }}
+      # run: |
+        # docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        # docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        # echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+      # # https://github.com/marketplace/actions/amazon-ecs-deploy-task-definition-action-for-github-actions
     - name: Download task definition
       run: |
         aws ecs describe-task-definition --task-definition definitiontaskgobridge --query taskDefinition > task-definition.json
