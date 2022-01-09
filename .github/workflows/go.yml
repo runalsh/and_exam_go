@@ -298,7 +298,7 @@ jobs:
       with:
         task-definition: task-definition.json
         container-name: go-container-ecr
-        # image: ${{ steps.build-image.outputs.image }}
+        image: 082046016299.dkr.ecr.eu-central-1.amazonaws.com/gorepo:latest 
 
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
