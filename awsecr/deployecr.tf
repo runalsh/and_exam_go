@@ -1,3 +1,4 @@
+
 terraform {
 
   required_providers {
@@ -58,5 +59,6 @@ terraform {
 	}
     versioning {
     enabled = true
+    }
   }
-}}
+}
