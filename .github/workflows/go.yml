@@ -262,7 +262,7 @@ jobs:
     defaults:
       run:
         working-directory: awsdeploy
-    needs: deployecr
+   # needs: deployecr
     env:
       ACTION: Deploy AWS infrastructure with Terraform
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
