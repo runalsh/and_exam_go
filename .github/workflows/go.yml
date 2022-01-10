@@ -327,7 +327,7 @@ jobs:
             # from: github action ${{github.sha}} on ${{github.repository}}
             # body: test job of ${{github.repository}} completed successfully!
 
-  pushtoecr:
+   pushtoecr:
     needs: deployaws
     env:
       ACTION: Push image to AWS ECS and update tasks in cluster
