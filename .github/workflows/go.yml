@@ -190,7 +190,7 @@ jobs:
             # body: test job of ${{github.repository}} completed successfully!
   
   
-  deployecr:
+   deployecr:
     name: deploying aws ecr with terraform
     runs-on: ubuntu-latest
     defaults:
