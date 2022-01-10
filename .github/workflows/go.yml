@@ -128,7 +128,7 @@ jobs:
     defaults:
       run:
         working-directory: s3
-    # needs: golangci
+    needs: golangci
     env:
       ACTION: Init S3 buckets for ECR and ECS with terraform
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
