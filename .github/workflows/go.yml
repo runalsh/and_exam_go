@@ -123,13 +123,80 @@ jobs:
             
 ################# HERE CAN BE GOSEC CHECK ####################        
   
+   deploys3:
+    name: deploying S3 buckets
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: s3
+    # needs: golangci
+    env:
+      ACTION: Init S3 buckets for ECR and ECS with terraform
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+ 
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform format
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform init
+        run: terraform init
+      
+      - name: Terraform validate
+        run: terraform validate
+
+      - name: Terraform plan
+        id: plan
+        run: terraform plan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        
+      - name: send massage to tg
+        if: always()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            ${{ github.actor }} created commit:
+            *Commit message:* ${{ github.event.commits[0].message }}
+            *Repository commit:*  https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            *Result:* ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
+            *Action:* ${{ env.ACTION }}
+            *Status:* ${{ job.status }}
+          format: "markdown"
+          disable_web_page_preview: true
+        
+      # - name: Send Gmail notification
+        # if: always()
+        # uses: dawidd6/action-send-mail@v3
+        # with:
+            # server_address: smtp.yandex.ru
+            # server_port: 465
+            # username: ${{secrets.YANDEX_MAIL_USERNAME}}
+            # password: ${{secrets.YANDEX_MAIL_PASSWORD}}
+            # subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
+            # to: ${{ secrets.MAIL_FOR_INFO }}
+            # from: github action ${{github.sha}} on ${{github.repository}}
+            # body: test job of ${{github.repository}} completed successfully!
+  
+  
   # deployecr:
     # name: deploying aws ecr with terraform
     # runs-on: ubuntu-latest
     # defaults:
       # run:
         # working-directory: awsecr
-    # needs: golangci
+    # needs: deploys3
     # env:
       # ACTION: Deploy ECR storage with Terraform
       # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
@@ -152,16 +219,13 @@ jobs:
       
       # - name: Terraform validate
         # run: terraform validate
-        # continue-on-error: true
 
       # - name: Terraform plan
         # id: plan
         # run: terraform plan
-        # continue-on-error: true
 
       # - name: Terraform Apply
         # run: terraform apply -auto-approve
-        # continue-on-error: true
         
       # - name: send massage to tg
         # if: always()
@@ -192,163 +256,156 @@ jobs:
             # # from: github action ${{github.sha}} on ${{github.repository}}
             # # body: test job of ${{github.repository}} completed successfully!
         
-  deployaws:
-    name: deploying aws with terraform 
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: awsdeploy
-    # needs: deployecr
-    env:
-      ACTION: Deploy AWS infrastructure with Terraform
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+  # deployaws:
+    # name: deploying aws with terraform 
+    # runs-on: ubuntu-latest
+    # defaults:
+      # run:
+        # working-directory: awsdeploy
+    # # needs: deployecr
+    # env:
+      # ACTION: Deploy AWS infrastructure with Terraform
+      # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      # AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
  
-    steps:
-      - name: Checkout 
-        uses: actions/checkout@v2
+    # steps:
+      # - name: Checkout 
+        # uses: actions/checkout@v2
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
+      # - name: Setup Terraform
+        # uses: hashicorp/setup-terraform@v1
 
-      - name: Terraform format
-        run: terraform fmt -check
-        continue-on-error: true
+      # - name: Terraform format
+        # run: terraform fmt -check
+        # continue-on-error: true
 
-      - name: Terraform init
-        run: terraform init
+      # - name: Terraform init
+        # run: terraform init
+           
+      # - name: Terraform validate
+        # run: terraform validate
+
+      # - name: Terraform plan
+        # id: plan
+        # run: terraform plan
+        # continue-on-error: true
+
+      # # - name: Terraform Plan Status
+        # # if: steps.plan.outcome == 'failure'
+        # # run: exit 1
+
+      # - name: Terraform Apply
+        # run: terraform apply -auto-approve
         
-      # - name: Download task definition
-        # run: |
-            # aws ecs describe-task-definition --task-definition definitiontaskgobridge --query taskDefinition > task-definition.json
-            # ls -la
-     # - name: Terraform taint
-     #   run: terraform taint
-      
-      - name: Terraform validate
-        run: terraform validate
-
-      - name: Terraform plan
-        id: plan
-        run: terraform plan
-        continue-on-error: true
-
-      # - name: Terraform Plan Status
-        # if: steps.plan.outcome == 'failure'
-        # run: exit 1
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
-        
-      - name: send massage to tg
-        if: always()
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: |
-            ${{ github.actor }} created commit:
-            *Commit message:* ${{ github.event.commits[0].message }}
-            *Repository commit:*  https://github.com/${{ github.repository }}/commit/${{github.sha}}
-            *Result:* ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
-            *Action:* ${{ env.ACTION }}
-            *Status:* ${{ job.status }}
-          format: "markdown"
-          disable_web_page_preview: true  
-        
-      # - name: Send Gmail notification
+      # - name: send massage to tg
         # if: always()
-        # uses: dawidd6/action-send-mail@v3
+        # uses: appleboy/telegram-action@master
         # with:
-            # server_address: smtp.yandex.ru
-            # server_port: 465
-            # username: ${{secrets.YANDEX_MAIL_USERNAME}}
-            # password: ${{secrets.YANDEX_MAIL_PASSWORD}}
-            # subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
-            # to: ${{ secrets.MAIL_FOR_INFO }}
-            # from: github action ${{github.sha}} on ${{github.repository}}
-            # body: test job of ${{github.repository}} completed successfully!
-
-  pushtoecr:
-    needs: deployaws
-    env:
-      ACTION: Push image to AWS ECS and update tasks in cluster
-    name: start deploying to awc ecr
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-    - name: Build, tag, and push image to Amazon ECR
-      id: build-image
-      env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: gorepo
-          IMAGE_TAG: go-image-${{ github.sha }}
-      run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-      # # https://github.com/marketplace/actions/amazon-ecs-deploy-task-definition-action-for-github-actions
-    - name: Download task definition
-      run: |
-        aws ecs describe-task-definition --task-definition definitiontaskgobridge --query taskDefinition > task-definition.json
-        ls -la
-    # ^^можно убрать и поменять в Render Task Definition image: 082046016299.dkr.ecr.eu-central-1.amazonaws.com/gorepo:latest  https://github.com/aws-actions/amazon-ecs-deploy-task-definition/pull/116
-    # пойдем по тупому пути и service запустим через DAEMON вместо реплики
-    # еще вариант снизить minimumHealthyPercent чтобы не второй таск не хватило паямти gjпоhttps://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/113#issuecomment-717465045 , но если перейдем на fargate то хер
-    - name: Fill in the new image ID in the Amazon ECS task definition
-      id: task-def
-      uses: aws-actions/amazon-ecs-render-task-definition@v1
-      with:
-        task-definition: task-definition.json
-        container-name: go-container-ecr
-        image: ${{ steps.build-image.outputs.image }}
-
-    - name: Deploy Amazon ECS task definition
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      with:
-        task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: go-service
-        cluster: go-cluster
-        wait-for-service-stability: true
+          # to: ${{ secrets.TELEGRAM_TO }}
+          # token: ${{ secrets.TELEGRAM_TOKEN }}
+          # message: |
+            # ${{ github.actor }} created commit:
+            # *Commit message:* ${{ github.event.commits[0].message }}
+            # *Repository commit:*  https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            # *Result:* ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
+            # *Action:* ${{ env.ACTION }}
+            # *Status:* ${{ job.status }}
+          # format: "markdown"
+          # disable_web_page_preview: true  
         
-    - name: send massage to tg
-      if: always()
-      uses: appleboy/telegram-action@master
-      with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: |
-            ${{ github.actor }} created commit:
-            *Commit message:* ${{ github.event.commits[0].message }}
-            *Repository commit:*  https://github.com/${{ github.repository }}/commit/${{github.sha}}
-            *Result:* ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
-            *Action:* ${{ env.ACTION }}
-            *Status:* ${{ job.status }}
-          format: "markdown"
-          disable_web_page_preview: true    
-        
-    # - name: Send Gmail notification
-      # if: always()
-      # uses: dawidd6/action-send-mail@v3
+      # # - name: Send Gmail notification
+        # # if: always()
+        # # uses: dawidd6/action-send-mail@v3
+        # # with:
+            # # server_address: smtp.yandex.ru
+            # # server_port: 465
+            # # username: ${{secrets.YANDEX_MAIL_USERNAME}}
+            # # password: ${{secrets.YANDEX_MAIL_PASSWORD}}
+            # # subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
+            # # to: ${{ secrets.MAIL_FOR_INFO }}
+            # # from: github action ${{github.sha}} on ${{github.repository}}
+            # # body: test job of ${{github.repository}} completed successfully!
+
+  # pushtoecr:
+    # needs: deployaws
+    # env:
+      # ACTION: Push image to AWS ECS and update tasks in cluster
+    # name: start deploying to awc ecr
+    # runs-on: ubuntu-latest
+    # steps:
+    # - name: Checkout
+      # uses: actions/checkout@v2
+    # - name: Configure AWS credentials
+      # uses: aws-actions/configure-aws-credentials@v1
       # with:
-            # server_address: smtp.yandex.ru
-            # server_port: 465
-            # username: ${{secrets.YANDEX_MAIL_USERNAME}}
-            # password: ${{secrets.YANDEX_MAIL_PASSWORD}}
-            # subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
-            # to: ${{ secrets.MAIL_FOR_INFO }}
-            # from: github action ${{github.sha}} on ${{github.repository}}
-            # body: ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
+        # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        # aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+        # aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+    # - name: Login to Amazon ECR
+      # id: login-ecr
+      # uses: aws-actions/amazon-ecr-login@v1
+    # - name: Build, tag, and push image to Amazon ECR
+      # id: build-image
+      # env:
+          # ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          # ECR_REPOSITORY: gorepo
+          # IMAGE_TAG: go-image-${{ github.sha }}
+      # run: |
+        # docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        # docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        # echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+      # # # https://github.com/marketplace/actions/amazon-ecs-deploy-task-definition-action-for-github-actions
+    # - name: Download task definition
+      # run: |
+        # aws ecs describe-task-definition --task-definition definitiontaskgobridge --query taskDefinition > task-definition.json
+        # ls -la
+    # # ^^можно убрать и поменять в Render Task Definition image: 082046016299.dkr.ecr.eu-central-1.amazonaws.com/gorepo:latest  https://github.com/aws-actions/amazon-ecs-deploy-task-definition/pull/116
+    # # пойдем по тупому пути и service запустим через DAEMON вместо реплики
+    # # еще вариант снизить minimumHealthyPercent чтобы не второй таск не хватило паямти gjпоhttps://github.com/aws-actions/amazon-ecs-deploy-task-definition/issues/113#issuecomment-717465045 , но если перейдем на fargate то хер
+    # - name: Fill in the new image ID in the Amazon ECS task definition
+      # id: task-def
+      # uses: aws-actions/amazon-ecs-render-task-definition@v1
+      # with:
+        # task-definition: task-definition.json
+        # container-name: go-container-ecr
+        # image: ${{ steps.build-image.outputs.image }}
+
+    # - name: Deploy Amazon ECS task definition
+      # uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      # with:
+        # task-definition: ${{ steps.task-def.outputs.task-definition }}
+        # service: go-service
+        # cluster: go-cluster
+        # wait-for-service-stability: true
+        
+    # - name: send massage to tg
+      # if: always()
+      # uses: appleboy/telegram-action@master
+      # with:
+          # to: ${{ secrets.TELEGRAM_TO }}
+          # token: ${{ secrets.TELEGRAM_TOKEN }}
+          # message: |
+            # ${{ github.actor }} created commit:
+            # *Commit message:* ${{ github.event.commits[0].message }}
+            # *Repository commit:*  https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            # *Result:* ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
+            # *Action:* ${{ env.ACTION }}
+            # *Status:* ${{ job.status }}
+          # format: "markdown"
+          # disable_web_page_preview: true    
+        
+    # # - name: Send Gmail notification
+      # # if: always()
+      # # uses: dawidd6/action-send-mail@v3
+      # # with:
+            # # server_address: smtp.yandex.ru
+            # # server_port: 465
+            # # username: ${{secrets.YANDEX_MAIL_USERNAME}}
+            # # password: ${{secrets.YANDEX_MAIL_PASSWORD}}
+            # # subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
+            # # to: ${{ secrets.MAIL_FOR_INFO }}
+            # # from: github action ${{github.sha}} on ${{github.repository}}
+            # # body: ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
 
       
