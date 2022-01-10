@@ -361,15 +361,15 @@ resource "aws_lb_target_group" "lb_tg" {
   }
 }
 
-# resource "aws_lb_listener" "lb-listener" {
-  # load_balancer_arn = aws_lb.web.arn
-  # port              = "8080"
-  # protocol          = "HTTP"
-  # default_action {
-    # type             = "forward"
-    # target_group_arn = aws_lb_target_group.lb_tg.arn
-  # }
-# }
+resource "aws_lb_listener" "lb-listener" {
+  load_balancer_arn = aws_lb.web.arn
+  port              = "8080"
+  protocol          = "HTTP"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.lb_tg.arn
+  }
+}
 
 
 #===========================SHOWMEWHATYOUHAVE===================
