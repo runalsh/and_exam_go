@@ -1,4 +1,3 @@
-
 #==========================================IAM===============
 
 provider "aws" {
@@ -56,8 +55,35 @@ terraform {
   }
 }
 
+resource "aws_s3_bucket" "terraform_ecs_state" {
+  bucket = "py-app-ecs-state"
+  lifecycle {
+    prevent_destroy = true
+  }
+  versioning {
+    enabled = true
+  }
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+}
 
-
+terraform {
+  backend "s3" {
+    bucket = "py-app-ecs-state"
+    key    = "awsecs/terraform.tfstate"
+#	lifecycle {
+#    prevent_destroy = true
+#	}
+ #   versioning {
+#    enabled = true
+ #   }
+  }
+}
 
 #===============================VARIABLES=================================================
 
@@ -119,18 +145,18 @@ resource "aws_security_group" "sg_main" {
     to_port     = 0
   }
 
-  ingress {
-    cidr_blocks = ["0.0.0.0/0"]
-    from_port   = 8080
-    protocol    = "tcp"
-    to_port     = 8080
-  }
-   ingress {
-    cidr_blocks = ["0.0.0.0/0"]
-    from_port   = 22
-    protocol    = "tcp"
-    to_port     = 22
-  }
+  # ingress {
+    # cidr_blocks = ["0.0.0.0/0"]
+    # from_port   = 8080
+    # protocol    = "tcp"
+    # to_port     = 8080
+  # }
+   # ingress {
+    # cidr_blocks = ["0.0.0.0/0"]
+    # from_port   = 22
+    # protocol    = "tcp"
+    # to_port     = 22
+  # }
   # пусть будет иначе за LB нет соединения 
   # TODO создать для LB свою SG
    ingress {
