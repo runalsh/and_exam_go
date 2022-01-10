@@ -1,4 +1,5 @@
 
+
 #==========================================IAM===============
 
 provider "aws" {
@@ -313,12 +314,12 @@ resource "aws_ecs_service" "service" {
   cluster                            = aws_ecs_cluster.go-cluster.id
   task_definition                    = aws_ecs_task_definition.task-definition.arn
   launch_type = "EC2"
-  # depends_on  = [aws_lb_listener.lb-listener]
-  # load_balancer {
-    # target_group_arn = aws_lb_target_group.lb_tg.arn
-    # container_name   = "go-container-ecr"
-    # container_port   = 8080
-  # }
+  depends_on  = [aws_lb_listener.lb-listener]
+  load_balancer {
+    target_group_arn = aws_lb_target_group.lb_tg.arn
+    container_name   = "go-container-ecr"
+    container_port   = 8080
+  }
   desired_count                      = 2
   deployment_minimum_healthy_percent = "50"
   deployment_maximum_percent         = "100"
