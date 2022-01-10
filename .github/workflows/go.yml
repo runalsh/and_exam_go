@@ -125,14 +125,13 @@ jobs:
   
   deployecr:
     name: deploying aws ecr with terraform
-    env:
-      ACTION: Deploy ECR storage with Terraform
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: awsecr
     needs: golangci
     env:
+      ACTION: Deploy ECR storage with Terraform
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
       AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
