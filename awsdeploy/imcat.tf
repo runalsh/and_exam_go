@@ -1,5 +1,3 @@
-
-
 #==========================================IAM===============
 
 provider "aws" {
@@ -241,7 +239,7 @@ resource "aws_autoscaling_group" "autoscale_group" {
   # default_cooldown        = 300
   desired_capacity        = 2
   health_check_grace_period = 10
-  # target_group_arns     = [aws_lb_target_group.lb_tg.arn]
+  target_group_arns     = [aws_lb_target_group.lb_tg.arn]
   health_check_type       = "ELB"
   launch_configuration    = aws_launch_configuration.launcher.id
   max_size                = 4
@@ -345,21 +343,21 @@ resource "aws_ecs_service" "service" {
 
 
 
-# resource "aws_lb_target_group" "lb_tg" {
-  # name        = "go-load-balancer-tg"
-  # port        = "8080"
-  # protocol    = "HTTP"
-  # target_type = "instance"
-  # vpc_id      = aws_vpc.vpc_main.id
-  # health_check {
-    # path                = "/"
-    # healthy_threshold   = 2
-    # unhealthy_threshold = 10
-    # timeout             = 2
-    # interval            = 5
-    # matcher             = "200"
-  # }
-# }
+resource "aws_lb_target_group" "lb_tg" {
+  name        = "go-load-balancer-tg"
+  port        = "8080"
+  protocol    = "HTTP"
+  target_type = "instance"
+  vpc_id      = aws_vpc.vpc_main.id
+  health_check {
+    path                = "/"
+    healthy_threshold   = 2
+    unhealthy_threshold = 10
+    timeout             = 2
+    interval            = 5
+    matcher             = "200"
+  }
+}
 
 # resource "aws_lb_listener" "lb-listener" {
   # load_balancer_arn = aws_lb.web.arn
