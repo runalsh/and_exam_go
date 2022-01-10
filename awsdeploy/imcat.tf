@@ -244,7 +244,7 @@ resource "aws_autoscaling_group" "autoscale_group" {
   health_check_type       = "ELB"
   launch_configuration    = aws_launch_configuration.launcher.id
   max_size                = 4
-  metrics_granularity     = "2Minute"
+  metrics_granularity     = "1Minute"
   min_size                = 0
   vpc_zone_identifier       = aws_subnet.subnets.*.id
   depends_on                = [aws_ecs_cluster.go-cluster]
