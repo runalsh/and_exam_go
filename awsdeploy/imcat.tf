@@ -334,14 +334,14 @@ resource "aws_ecs_service" "service" {
 
 #=================================BALANCER=========================
 
-# resource "aws_lb" "web" {
+resource "aws_lb" "web" {
   # name                       = "go-load-balancer"
-  # load_balancer_type         = "application"
-  # subnets                    = aws_subnet.subnets.*.id
-  # security_groups            = [aws_security_group.sg_main.id]
-  # enable_deletion_protection = false
-  # internal           = false
-# }
+  load_balancer_type         = "application"
+  subnets                    = aws_subnet.subnets.*.id
+  security_groups            = [aws_security_group.sg_main.id]
+  enable_deletion_protection = false
+  internal           = false
+}
 
 
 
