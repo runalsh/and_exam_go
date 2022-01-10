@@ -1,3 +1,4 @@
+
 #==========================================IAM===============
 
 provider "aws" {
@@ -76,12 +77,6 @@ terraform {
   backend "s3" {
     bucket = "py-app-ecs-state"
     key    = "awsecs/terraform.tfstate"
-#	lifecycle {
-#    prevent_destroy = true
-#	}
- #   versioning {
-#    enabled = true
- #   }
   }
 }
 
