@@ -11,7 +11,6 @@ on:
      # - '.github/workflows/**'
 
 jobs:
-        
   # snyk:
     # name: snyk for vulns
     # env:
