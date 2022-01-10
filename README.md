@@ -2,15 +2,23 @@
 # Cloud CI\CD using AWS
 # Demo http://go.runalsh.ru:8080/
 
+
 Simple GOlang app.
 In this proj you can see how working ci\cd using AWS
 
+
 Before start you must declare some SECRETS to GA Store:
+
 __Core__
+
 AWS_ACCESS_KEY
+
 AWS_DEFAULT_REGION
+
 AWS_SECRET_KEY
+
 SNYK_TOKEN - get from https://app.snyk.io/account "Auth Token" section
+
 
 __Information about progress__
 *Telegram* - start dialog with @BotFather and create new bot, 
